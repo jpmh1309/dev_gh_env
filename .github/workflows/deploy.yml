@@ -4,9 +4,15 @@ on:
     branches:
       - main
       - dev
+env:
+  MONGODB_DB_NAME: gha-demo
 jobs:
   test:
-    environment: testing
+    env:
+      MONGODB_CLUSTER_ADDRESS: cluster0.xy6k5vr.mongodb.net
+      MONGODB_USERNAME: josepmh130995
+      MONGODB_PASSWORD: UXntfa586VreoTqX
+      PORT: 8080
     runs-on: ubuntu-latest
     steps:
       - name: Get Code
@@ -19,15 +25,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run server
-        run: npm start & npx wait-on http://127.0.0.1:XYZ
+        run: npm start & npx wait-on http://127.0.0.1:$PORT # requires MongoDB Atlas to accept requests from anywhere!
       - name: Run tests
         run: npm test
-      - name: Output information
-        run: echo "..."
+      - name: Output information 1
+        run: |
+          echo "MONGODB_USERNAME: $MONGODB_USERNAME"
+      - name: Output information 2
+        run: |
+          echo "MONGODB_USERNAME: ${{ env.MONGODB_USERNAME }}"
   deploy:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Output information
+        env:
+          PORT: 3000
         run: |        
-          echo "..."
+          echo "MONGODB_DB_NAME: $MONGODB_DB_NAME"
+          echo "MONGODB_USERNAME: $MONGODB_USERNAME"
+          echo "${{ env.PORT }}"
